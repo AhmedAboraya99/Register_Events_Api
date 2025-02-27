@@ -31,6 +31,36 @@ builder.Services.AddScoped<Ilogin, Loginn>();
 builder.Services.AddScoped<ISignUP, SignUpp>();
 builder.Services.AddScoped<IEvents, Eventss>();
 
+// 🔹 Add Identity (User + Role)
+builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
+    .AddEntityFrameworkStores<ApplicationDbContext>()
+    .AddDefaultTokenProviders();
+
+// 🔹 Configure JWT Authentication
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.RequireHttpsMetadata = false;
+        options.SaveToken = true;
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = builder.Configuration["Jwt:Issuer"],
+            ValidAudience = builder.Configuration["Jwt:Audience"],
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
+        };
+    });
+
+// 🔹 Enable Role-Based Authorization
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("AdminOnly", policy => policy.RequireRole("Admin"));
+    options.AddPolicy("UserOnly", policy => policy.RequireRole("User"));
+});
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
