@@ -14,5 +14,6 @@
         public string? Country { get; set; }
         public string? Password { get; set; }
         public string? ConfairmPassword { get; set;}
+        public string Role { get; set; }  // Can be "Admin" or "User"
     }
 }
